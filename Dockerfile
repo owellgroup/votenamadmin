@@ -14,8 +14,9 @@ RUN flutter pub get
 # Copy the rest of the application
 COPY . .
 
-# Build the web app
-RUN flutter build web --release --web-renderer canvaskit
+# Build the web app (--web-renderer flag removed in newer Flutter versions)
+# Using --no-tree-shake-icons to avoid potential icon issues
+RUN flutter build web --release --no-tree-shake-icons
 
 # Stage 2: Serve with nginx
 FROM nginx:alpine
