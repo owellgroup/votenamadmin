@@ -17,6 +17,7 @@ class CandidatesManagementScreen extends StatefulWidget {
   State<CandidatesManagementScreen> createState() =>
       _CandidatesManagementScreenState();
 }
+//
 
 class _CandidatesManagementScreenState
     extends State<CandidatesManagementScreen> {
