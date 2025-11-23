@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../models/user.dart';
@@ -356,12 +357,14 @@ class AdminApiService {
       request.fields['voteCategoryId'] = voteCategoryId.toString();
 
       if (photoBytes != null && photoName != null) {
-        // Web: use bytes directly
+        // Web: use bytes directly with proper content type
+        final contentType = _getContentType(photoName);
         request.files.add(
           http.MultipartFile.fromBytes(
             'photo',
             photoBytes,
             filename: photoName,
+            contentType: contentType,
           ),
         );
       } else if (photo != null) {
@@ -372,12 +375,14 @@ class AdminApiService {
       }
 
       if (partyLogoBytes != null && partyLogoName != null) {
-        // Web: use bytes directly
+        // Web: use bytes directly with proper content type
+        final contentType = _getContentType(partyLogoName);
         request.files.add(
           http.MultipartFile.fromBytes(
             'partyLogo',
             partyLogoBytes,
             filename: partyLogoName,
+            contentType: contentType,
           ),
         );
       } else if (partyLogo != null) {
@@ -441,12 +446,14 @@ class AdminApiService {
 
       // Only add files if they are actually provided (for updates, files are optional)
       if (photoBytes != null && photoName != null && photoBytes.isNotEmpty) {
-        // Web: use bytes directly
+        // Web: use bytes directly with proper content type
+        final contentType = _getContentType(photoName);
         request.files.add(
           http.MultipartFile.fromBytes(
             'photo',
             photoBytes,
             filename: photoName,
+            contentType: contentType,
           ),
         );
       } else if (photo != null && await photo.exists()) {
@@ -457,12 +464,14 @@ class AdminApiService {
       }
 
       if (partyLogoBytes != null && partyLogoName != null && partyLogoBytes.isNotEmpty) {
-        // Web: use bytes directly
+        // Web: use bytes directly with proper content type
+        final contentType = _getContentType(partyLogoName);
         request.files.add(
           http.MultipartFile.fromBytes(
             'partyLogo',
             partyLogoBytes,
             filename: partyLogoName,
+            contentType: contentType,
           ),
         );
       } else if (partyLogo != null && await partyLogo.exists()) {
@@ -569,6 +578,27 @@ class AdminApiService {
       throw Exception('Failed to load votes');
     } catch (e) {
       throw Exception('Error: $e');
+    }
+  }
+
+  // Helper method to get content type from filename
+  static MediaType _getContentType(String filename) {
+    final extension = filename.toLowerCase().split('.').last;
+    switch (extension) {
+      case 'jpg':
+      case 'jpeg':
+        return MediaType('image', 'jpeg');
+      case 'png':
+        return MediaType('image', 'png');
+      case 'gif':
+        return MediaType('image', 'gif');
+      case 'webp':
+        return MediaType('image', 'webp');
+      case 'bmp':
+        return MediaType('image', 'bmp');
+      default:
+        // Default to jpeg if extension is unknown
+        return MediaType('image', 'jpeg');
     }
   }
 }

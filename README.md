@@ -9,7 +9,6 @@ A comprehensive Flutter web application for managing the Namibia Voting System. 
 - [Tech Stack](#tech-stack)
 - [Prerequisites](#prerequisites)
 - [Local Development](#local-development)
-- [Docker Deployment](#docker-deployment)
 - [API Documentation](#api-documentation)
 - [Project Structure](#project-structure)
 - [Environment Configuration](#environment-configuration)
@@ -178,7 +177,7 @@ flutter run -d chrome
 #### Web Release Build
 
 ```bash
-flutter build web --release --web-renderer canvaskit
+flutter build web --release
 ```
 
 The built files will be in the `build/web` directory.
@@ -195,66 +194,6 @@ python -m http.server 8000
 # Using Node.js (http-server)
 npx http-server build/web -p 8000
 ```
-
-## 🐳 Docker Deployment
-
-### Building the Docker Image
-
-```bash
-docker build -t votenamadmin:latest .
-```
-
-### Running the Container
-
-```bash
-docker run -d -p 5151:5151 --name votenamadmin votenamadmin:latest
-```
-
-### Docker Compose (Optional)
-
-Create a `docker-compose.yml`:
-
-```yaml
-version: '3.8'
-
-services:
-  votenamadmin:
-    build: .
-    ports:
-      - "5151:5151"
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5151/health"]
-      interval: 30s
-      timeout: 3s
-      retries: 3
-      start_period: 5s
-```
-
-Run with:
-
-```bash
-docker-compose up -d
-```
-
-### Deployment with Dokploy
-
-1. **Push your code to a Git repository** (GitHub, GitLab, etc.)
-
-2. **In Dokploy:**
-   - Create a new application
-   - Connect your Git repository
-   - Set build context to root directory
-   - Dockerfile path: `Dockerfile`
-   - Port: `5151`
-   - Dokploy will automatically:
-     - Build the Docker image
-     - Handle reverse proxy
-     - Configure Let's Encrypt SSL certificates
-     - Set up health checks
-
-3. **Deploy:**
-   - Click "Deploy" and Dokploy will handle the rest
 
 ## 📡 API Documentation
 

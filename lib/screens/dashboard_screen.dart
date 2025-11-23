@@ -95,7 +95,10 @@ class DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isWide = MediaQuery.of(context).size.width > 600;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isWide = screenWidth > 600;
+    final isTablet = screenWidth >= 600 && screenWidth <= 900;
+    final isDesktop = screenWidth > 900;
     final topCandidates = getTopCandidates();
     final totalVotes = getTotalVotes();
     final regionCounts = getRegionVoteCounts();
@@ -181,14 +184,43 @@ class DashboardScreenState extends State<DashboardScreen> {
                         const SizedBox(height: 30),
 
                         // Statistics Cards - Modern Design
-                        GridView.count(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          crossAxisCount: isWide ? 4 : 2,
-                          crossAxisSpacing: 20,
-                          mainAxisSpacing: 20,
-                          childAspectRatio: isWide ? 1.4 : 1.1,
-                          children: [
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            // Calculate responsive aspect ratio based on available width
+                            double aspectRatio;
+                            int crossAxisCount;
+                            double spacing;
+                            
+                            final availableWidth = constraints.maxWidth;
+                            
+                            if (isDesktop) {
+                              crossAxisCount = 4;
+                              // Calculate aspect ratio based on card width
+                              final cardWidth = (availableWidth - (3 * 20)) / 4;
+                              aspectRatio = cardWidth > 200 ? 1.5 : (cardWidth > 150 ? 1.6 : 1.8);
+                              spacing = 20;
+                            } else if (isTablet) {
+                              crossAxisCount = 2;
+                              // Calculate aspect ratio based on card width
+                              final cardWidth = (availableWidth - 16) / 2;
+                              aspectRatio = cardWidth > 250 ? 1.5 : (cardWidth > 200 ? 1.6 : (cardWidth > 150 ? 1.8 : 2.0));
+                              spacing = 16;
+                            } else {
+                              crossAxisCount = 2;
+                              // Calculate aspect ratio based on card width
+                              final cardWidth = (availableWidth - 20) / 2;
+                              aspectRatio = cardWidth > 200 ? 1.1 : (cardWidth > 150 ? 1.2 : (cardWidth > 100 ? 1.4 : 1.6));
+                              spacing = 20;
+                            }
+                            
+                            return GridView.count(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              crossAxisCount: crossAxisCount,
+                              crossAxisSpacing: spacing,
+                              mainAxisSpacing: spacing,
+                              childAspectRatio: aspectRatio,
+                              children: [
                             StatCard(
                               title: 'Total Votes',
                               value: totalVotes.toString(),
@@ -216,7 +248,9 @@ class DashboardScreenState extends State<DashboardScreen> {
                               icon: Icons.bar_chart_rounded,
                               iconColor: Colors.orange[700]!,
                             ),
-                          ],
+                              ],
+                            );
+                          },
                         ),
 
                         const SizedBox(height: 40),
